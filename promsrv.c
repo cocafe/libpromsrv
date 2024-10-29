@@ -280,16 +280,18 @@ void prom_commit_end(prom_server *srv)
 
 static void http_metrics_response(prom_server *srv, struct evhttp_request *req)
 {
-        static struct timespec ts1 = { };
-
-        {
-                struct timespec ts2 = { };
-                clock_gettime(CLOCK_REALTIME, &ts2);
-
-                printf("query interval %lu s %ju nsec\n", ts2.tv_sec - ts1.tv_sec, (ts2.tv_sec - ts1.tv_sec) == 0 ? ts2.tv_nsec - ts1.tv_nsec : ts2.tv_nsec);
-
-                ts1 = ts2;
-        }
+//        {
+//                static struct timespec ts1 = { };
+//                struct timespec ts2 = { };
+//                clock_gettime(CLOCK_REALTIME, &ts2);
+//
+//                if (ts1.tv_sec || ts1.tv_nsec)
+//                        printf("query interval: %lu s %ju nsec\n",
+//                               ts2.tv_sec - ts1.tv_sec,
+//                               (ts2.tv_sec - ts1.tv_sec) == 0 ? ts2.tv_nsec - ts1.tv_nsec : ts2.tv_nsec);
+//
+//                ts1 = ts2;
+//        }
 
         if (srv->evbuf) {
                 evhttp_add_header(req->output_headers,
