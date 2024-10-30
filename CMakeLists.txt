@@ -6,10 +6,6 @@ project(${LIB_NAME} C)
 
 set(CMAKE_C_STANDARD 11)
 
-if (MINGW OR WINNT)
-        set(GETOPT_SRC getopt_musl.h getopt_musl.c)
-endif()
-
 if ("${CMAKE_BUILD_TYPE}" STREQUAL "")
         message(STATUS "Build type is not defined, set default one")
         set(CMAKE_BUILD_TYPE "Debug")
