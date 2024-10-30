@@ -65,8 +65,8 @@ static const char *http_errcode_get(long code)
 
 static void http_simple_reason_send(struct evhttp_request* req, int code, char const* text)
 {
-        char const* code_str = http_errcode_get(code);
-        struct evbuffer* body = evbuffer_new();
+        char const *code_str = http_errcode_get(code);
+        struct evbuffer *body = evbuffer_new();
 
         evbuffer_add_printf(body, "<h1>%d: %s</h1>", code, code_str);
 
@@ -294,13 +294,30 @@ static void http_metrics_response(prom_server *srv, struct evhttp_request *req)
 //        }
 
         if (srv->evbuf) {
+                struct evbuffer *reply_buf = evbuffer_new();
+                void *data = NULL;
+                size_t len = 0;
+
                 evhttp_add_header(req->output_headers,
                                   "Content-Type",
                                   "text/plain; version=0.0.1; charset=utf-8");
 
                 pthread_mutex_lock(&srv->lck_commit);
-                evhttp_send_reply(req, HTTP_OK, "OK", srv->evbuf);
+
+                len = evbuffer_get_length(srv->evbuf);
+                data = evbuffer_pullup(srv->evbuf, len);
+                if (data)
+                        evbuffer_add(reply_buf, data, len);
+
                 pthread_mutex_unlock(&srv->lck_commit);
+
+                if (evbuffer_get_length(reply_buf) > 0) {
+                        evhttp_send_reply(req, HTTP_OK, "OK", reply_buf);
+                } else {
+                        http_simple_reason_send(req, HTTP_INTERNAL, req->uri);
+                }
+
+                evbuffer_free(reply_buf);
         } else {
                 http_simple_reason_send(req, HTTP_INTERNAL, req->uri);
         }
