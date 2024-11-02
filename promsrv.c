@@ -344,7 +344,7 @@ static void http_request_handler(struct evhttp_request *req, void *arg) {
 
 void prom_run(prom_server *srv)
 {
-        while (!event_base_got_break(srv->ev_base))
+        while (!event_base_got_break(srv->ev_base))`
                 event_base_dispatch(srv->ev_base);
 }
 
