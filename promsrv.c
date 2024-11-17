@@ -395,17 +395,20 @@ free_base:
 
 void prom_deinit(prom_server *srv)
 {
-        evhttp_del_accept_socket(srv->ev_http, srv->ev_httpsk);
-        evhttp_free(srv->ev_http);
-        event_base_free(srv->ev_base);
+        if (srv->ev_httpsk)
+                evhttp_del_accept_socket(srv->ev_http, srv->ev_httpsk);
 
-        if (srv->evbuf) {
+        if (srv->ev_http)
+                evhttp_free(srv->ev_http);
+
+        if (srv->ev_base)
+                event_base_free(srv->ev_base);
+
+        if (srv->evbuf)
                 evbuffer_free(srv->evbuf);
-        }
 
-        if (srv->evbuf_next) {
+        if (srv->evbuf_next)
                 evbuffer_free(srv->evbuf_next);
-        }
 
         pthread_mutex_destroy(&srv->lck_commit);
 }
