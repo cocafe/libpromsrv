@@ -228,7 +228,7 @@ void prom_metric_write(prom_metric_def_set *s, struct evbuffer *evbuf)
 
         // Write the header comments
         evbuffer_add_printf(evbuf, "# TYPE %s %s\n", s->def->name, s->def->type);
-        evbuffer_add_printf(evbuf, "# HELP %s %s\n", s->def->name, s->def->help);
+        evbuffer_add_printf(evbuf, "# HELP %s %s\n", s->def->name, s->def->help ? s->def->help : "");
 
         // Write the metric values
         list_for_each_entry(m, &s->metrics, node) {
