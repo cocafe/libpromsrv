@@ -21,8 +21,6 @@
 #define PROM_BUF_SIZE 1024
 #endif
 
-#define PROM_CONN_BACKLOG 10
-
 // Generic definition for a metric including name, help and type
 typedef struct prom_metric_def {
         char *name;
@@ -62,6 +60,8 @@ typedef struct prom_server {
         struct evhttp_bound_socket *ev_httpsk;
         struct evbuffer *evbuf;
         struct evbuffer *evbuf_next;
+        int (*on_http_get)(struct prom_server *srv, void *userdata);
+        void *userdata;
         pthread_mutex_t lck_commit;
 } prom_server;
 
@@ -69,6 +69,12 @@ static const char PROM_METRIC_TYPE_COUNTER[]   = "counter";
 static const char PROM_METRIC_TYPE_GAUGE[]     = "gauge";
 static const char PROM_METRIC_TYPE_HISTOGRAM[] = "histogram";
 static const char PROM_METRIC_TYPE_SUMMARY[]   = "summary";
+
+#define GAUGE_METRIC_DEF(_name, _help) \
+        { .name = _name, .help = _help, .type = PROM_METRIC_TYPE_GAUGE }
+
+#define COUNTER_METRIC_DEF(_name, _help) \
+        { .name = _name, .help = _help, .type = PROM_METRIC_TYPE_GAUGE }
 
 void prom_run(prom_server *srv);
 
@@ -96,5 +102,11 @@ void prom_metric_del(prom_metric *m);
 void prom_commit_start(prom_server *srv);
 void prom_commit(prom_server *srv, prom_metric_set *set);
 void prom_commit_end(prom_server *srv);
+
+static inline void prom_server_on_http_get_cb(prom_server *srv, int (*on_http_get)(struct prom_server *, void *), void *userdata)
+{
+        srv->on_http_get = on_http_get;
+        srv->userdata = userdata;
+}
 
 #endif // __LIBPROMSRV_H__

@@ -331,6 +331,13 @@ static void http_request_handler(struct evhttp_request *req, void *arg) {
 
         if (!strncmp(req->uri, "/metrics", 8)) {
                 if (req->type == EVHTTP_REQ_GET) {
+                        int err;
+
+                        if (srv->on_http_get && (err = srv->on_http_get(srv, srv->userdata))) {
+                                http_simple_reason_send(req, HTTP_INTERNAL, strerror(abs(err)));
+                                return;
+                        }
+
                         http_metrics_response(srv, req);
                 } else {
                         http_simple_reason_send(req, HTTP_NOTIMPLEMENTED, req->uri);
