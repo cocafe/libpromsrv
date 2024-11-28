@@ -94,6 +94,7 @@ void prom_metric_register(prom_metric_set *s, prom_metric_def *d);
 
 // Create or get a metric
 prom_metric *prom_metric_create_or_get(prom_metric_set *s, prom_metric_def *d, int n, ...);
+prom_metric *prom_label_metric_create_or_get(prom_metric_set *s, prom_metric_def *d, int n, prom_label *labels);
 
 // Delete a metric from set
 void prom_metric_del(prom_metric *m);

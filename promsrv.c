@@ -133,16 +133,8 @@ void prom_metric_del(prom_metric *m)
         free(m);
 }
 
-prom_metric *prom_metric_create_or_get(prom_metric_set *s, prom_metric_def *d, int n, ...)
+prom_metric *__prom_metric_create_or_get(prom_metric_set *s, prom_metric_def *d, int n, prom_label *ulabels)
 {
-        va_list args;
-        va_start(args, n);
-        prom_label ulabels[PROM_MAX_LABELS];
-        for (int i = 0; i < n; i++) {
-                ulabels[i] = va_arg(args, prom_label);
-        }
-        va_end(args);
-
         int found = 0;
         prom_metric *m_found;
         prom_metric_def_set *ds = NULL;
@@ -197,6 +189,24 @@ prom_metric *prom_metric_create_or_get(prom_metric_set *s, prom_metric_def *d, i
         } else {
                 return m_found;
         }
+}
+
+prom_metric *prom_metric_create_or_get(prom_metric_set *s, prom_metric_def *d, int n, ...)
+{
+        va_list args;
+        va_start(args, n);
+        prom_label ulabels[PROM_MAX_LABELS];
+        for (int i = 0; i < n && i < PROM_MAX_LABELS; i++) {
+                ulabels[i] = va_arg(args, prom_label);
+        }
+        va_end(args);
+
+        return __prom_metric_create_or_get(s, d, n, ulabels);
+}
+
+prom_metric *prom_label_metric_create_or_get(prom_metric_set *s, prom_metric_def *d, int n, prom_label *labels)
+{
+        return __prom_metric_create_or_get(s, d, n, labels);
 }
 
 void prom_metric_register(prom_metric_set *s, prom_metric_def *d)
