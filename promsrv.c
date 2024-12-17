@@ -381,7 +381,7 @@ static void http_request_handler(struct evhttp_request *req, void *arg) {
                 return;
         }
 
-        for (size_t i = 0; i < ARRAY_SIZE(srv->ctxs); i++) {
+        for (size_t i = 0; i < srv->ctx_cnt; i++) {
                 prom_ctx *c = srv->ctxs[i];
 
                 if (!strncmp(req->uri, c->uri, strlen(c->uri))) {
