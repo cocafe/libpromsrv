@@ -438,8 +438,7 @@ int prom_srv_ctx_register(prom_server *srv, prom_ctx *ctx)
 
 void prom_srv_run(prom_server *srv)
 {
-        while (!event_base_got_break(srv->ev_base))
-                event_base_dispatch(srv->ev_base);
+        event_base_dispatch(srv->ev_base);
 }
 
 void prom_srv_stop(prom_server *srv)
