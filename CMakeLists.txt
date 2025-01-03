@@ -35,4 +35,4 @@ elseif(${CMAKE_BUILD_TYPE} STREQUAL "Release")
         target_compile_options(${LIB_NAME} PRIVATE -O2)
 endif()
 
-target_link_libraries(${LIB_NAME} pthread ${LIBEVENT_PTHREADS_LIBRARIES})
+target_link_libraries(${LIB_NAME} ${LIBEVENT_PTHREADS_LIBRARIES} pthread)
