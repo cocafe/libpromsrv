@@ -62,7 +62,7 @@ typedef struct prom_ctx {
         const char *uri;
         struct evbuffer *evbuf;
         struct evbuffer *evbuf_next;
-        int (*on_http_get)(struct prom_content *, void *);
+        int (*on_http_get)(struct prom_ctx *, void *);
         void *userdata;
         pthread_mutex_t lck_commit;
 } prom_content;
