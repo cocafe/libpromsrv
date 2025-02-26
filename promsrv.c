@@ -288,14 +288,14 @@ void prom_metric_set_deinit(prom_metric_set *set)
         }
 }
 
-void prom_commit_start(prom_ctx *ctx)
+void prom_commit_start(prom_content *ctx)
 {
         struct evbuffer *next = evbuffer_new();
 
         while (!__sync_bool_compare_and_swap(&ctx->evbuf_next, NULL, next));
 }
 
-int prom_commit(prom_ctx *ctx, prom_metric_set *s)
+int prom_commit(prom_content *ctx, prom_metric_set *s)
 {
         struct evbuffer *evbuf = ctx->evbuf_next;
 
@@ -309,7 +309,7 @@ int prom_commit(prom_ctx *ctx, prom_metric_set *s)
         return 0;
 }
 
-void prom_commit_end(prom_ctx *ctx)
+void prom_commit_end(prom_content *ctx)
 {
         pthread_mutex_lock(&ctx->lck_commit);
         if (ctx->evbuf)
@@ -320,7 +320,7 @@ void prom_commit_end(prom_ctx *ctx)
         pthread_mutex_unlock(&ctx->lck_commit);
 }
 
-static void http_metrics_response(prom_ctx *ctx, struct evhttp_request *req)
+static void http_metrics_response(prom_content *ctx, struct evhttp_request *req)
 {
         // {
         //         static struct timespec ts1 = { };
@@ -382,7 +382,7 @@ static void http_request_handler(struct evhttp_request *req, void *arg) {
         }
 
         for (size_t i = 0; i < srv->ctx_cnt; i++) {
-                prom_ctx *c = srv->ctxs[i];
+                prom_content *c = srv->ctxs[i];
 
                 if (!strncmp(req->uri, c->uri, strlen(c->uri))) {
                         int err;
@@ -400,14 +400,14 @@ static void http_request_handler(struct evhttp_request *req, void *arg) {
         http_simple_reason_send(req, HTTP_NOTFOUND, NULL);
 }
 
-void prom_ctx_init(prom_ctx *ctx, const char *uri)
+void prom_ctx_init(prom_content *ctx, const char *uri)
 {
         memset(ctx, 0x00, sizeof(*ctx));
         ctx->uri = uri;
         pthread_mutex_init(&ctx->lck_commit, NULL);
 }
 
-void prom_ctx_deinit(prom_ctx *ctx)
+void prom_ctx_deinit(prom_content *ctx)
 {
         if (ctx->evbuf)
                 evbuffer_free(ctx->evbuf);
@@ -418,7 +418,7 @@ void prom_ctx_deinit(prom_ctx *ctx)
         pthread_mutex_destroy(&ctx->lck_commit);
 }
 
-int prom_srv_ctx_register(prom_server *srv, prom_ctx *ctx)
+int prom_srv_ctx_register(prom_server *srv, prom_content *ctx)
 {
         if (!srv || !ctx)
                 return -EINVAL;

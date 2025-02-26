@@ -62,17 +62,17 @@ typedef struct prom_ctx {
         const char *uri;
         struct evbuffer *evbuf;
         struct evbuffer *evbuf_next;
-        int (*on_http_get)(struct prom_ctx *, void *);
+        int (*on_http_get)(struct prom_content *, void *);
         void *userdata;
         pthread_mutex_t lck_commit;
-} prom_ctx;
+} prom_content;
 
 typedef struct prom_server {
         struct event_base *ev_base;
         struct evhttp *ev_http;
         struct evhttp_bound_socket *ev_httpsk;
         size_t ctx_cnt;
-        prom_ctx *ctxs[PROM_MAX_SRV_CTXS];
+        prom_content *ctxs[PROM_MAX_SRV_CTXS];
 } prom_server;
 
 static const char PROM_METRIC_TYPE_COUNTER[]   = "counter";
@@ -86,10 +86,10 @@ static const char PROM_METRIC_TYPE_SUMMARY[]   = "summary";
 #define COUNTER_METRIC_DEF(_name, _help) \
         { .name = _name, .help = _help, .type = PROM_METRIC_TYPE_GAUGE }
 
-void prom_ctx_init(prom_ctx *ctx, const char *uri);
-void prom_ctx_deinit(prom_ctx *ctx);
+void prom_ctx_init(prom_content *ctx, const char *uri);
+void prom_ctx_deinit(prom_content *ctx);
 
-int prom_srv_ctx_register(prom_server *srv, prom_ctx *ctx);
+int prom_srv_ctx_register(prom_server *srv, prom_content *ctx);
 
 void prom_srv_run(prom_server *srv);
 void prom_srv_stop(prom_server *srv);
@@ -108,11 +108,11 @@ prom_metric *prom_label_metric_create_or_get(prom_metric_set *s, prom_metric_def
 void prom_metric_del(prom_metric *m);
 
 // Save a metric set to prometheus http buffer
-void prom_commit_start(prom_ctx *ctx);
-int prom_commit(prom_ctx *ctx, prom_metric_set *s);
-void prom_commit_end(prom_ctx *ctx);
+void prom_commit_start(prom_content *ctx);
+int prom_commit(prom_content *ctx, prom_metric_set *s);
+void prom_commit_end(prom_content *ctx);
 
-static inline void prom_ctx_on_http_get_cb(prom_ctx *ctx, int (*on_http_get)(prom_ctx *, void *), void *userdata)
+static inline void prom_ctx_on_http_get_cb(prom_content *ctx, int (*on_http_get)(prom_content *, void *), void *userdata)
 {
         ctx->on_http_get = on_http_get;
         ctx->userdata = userdata;
